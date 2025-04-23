@@ -586,7 +586,8 @@
           </div>
 
           <div class="col-lg-7">
-            <form id="contact-form" method="POST">
+            <form action="https://formsubmit.co/ajax/0ca2f8016c3a6f1faf14422caf6cbe80" method="POST"
+              class="php-email-form" data-aos="fade-up" data-aos-delay="200" id="contact-form" onsubmit="return false;">
               <div class="row gy-4">
                 <div class="col-md-6">
                   <label for="name-field" class="pb-2">Your Name</label>
@@ -608,9 +609,14 @@
                   <textarea class="form-control" name="message" rows="10" id="message-field" required=""></textarea>
                 </div>
                 <input type="hidden" name="_captcha" value="true">
+
                 <div class="col-md-12 text-center">
+                  <div class="loading">Loading...</div>
+                  <div class="error-message">There was an error sending your message.</div>
+                  <div class="sent-message">Your message has been sent. Thank you!</div>
                   <button type="submit">Send Message</button>
                 </div>
+
                 <div id="form-message" style="margin-top: 1rem;"></div>
               </div>
             </form>
@@ -642,38 +648,48 @@
   <script src="assets/vendor/imagesloaded/imagesloaded.pkgd.min.js"></script>
   <script src="assets/vendor/isotope-layout/isotope.pkgd.min.js"></script>
   <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
-
-  <!-- Main JS File -->
-  <script src="assets/js/main.js"></script>
   <script>
     const form = document.getElementById("contact-form");
-    const messageDiv = document.getElementById("form-message");
+    const loading = form.querySelector(".loading");
+    const errorMessage = form.querySelector(".error-message");
+    const sentMessage = form.querySelector(".sent-message");
 
     form.addEventListener("submit", function (e) {
-      e.preventDefault(); // prevent page reload
+      e.preventDefault();
+
+      loading.style.display = "block";
+      errorMessage.style.display = "none";
+      sentMessage.style.display = "none";
 
       const formData = new FormData(form);
 
-      fetch("https://formsubmit.co/ajax/ajithes1@gmail.com", {
+      fetch(form.action, {
         method: "POST",
-        headers: { 'Accept': 'application/json' },
+        headers: {
+          'Accept': 'application/json'
+        },
         body: formData
       })
         .then(response => {
+          loading.style.display = "none";
           if (response.ok) {
-            messageDiv.innerHTML = "<span style='color: green;'>✅ Message sent successfully!</span>";
+            sentMessage.style.display = "block";
             form.reset();
           } else {
             return response.json().then(data => {
-              messageDiv.innerHTML = `<span style='color: red;'>❌ ${data.message || 'Something went wrong.'}</span>`;
+              throw new Error(data.message || "Unknown error");
             });
           }
         })
         .catch(error => {
-          messageDiv.innerHTML = `<span style='color: red;'>❌ Error: ${error.message}</span>`;
+          loading.style.display = "none";
+          errorMessage.textContent = "Error: " + error.message;
+          errorMessage.style.display = "block";
         });
     });
   </script>
+  <!-- Main JS File -->
+  <script src="assets/js/main.js"></script>
 
 </body>
 
